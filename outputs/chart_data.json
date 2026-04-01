@@ -1,0 +1,26 @@
+{
+  "contract_churn": {
+    "Month-to-month": 42.7,
+    "One year": 11.3,
+    "Two year": 2.8
+  },
+  "internet_churn": {
+    "DSL": 19.0,
+    "Fiber optic": 41.9,
+    "No": 7.4
+  },
+  "tenure_churn": {
+    "0-6m": 53.3,
+    "7-12m": 35.9,
+    "13-24m": 28.7,
+    "25-48m": 20.4,
+    "49-72m": 9.5
+  },
+  "payment_churn": {
+    "Bank transfer (automatic)": 16.7,
+    "Credit card (automatic)": 15.3,
+    "Electronic check": 45.3,
+    "Mailed check": 19.2
+  },
+  "churn_rate": 26.6
+}

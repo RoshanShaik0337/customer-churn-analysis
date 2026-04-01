@@ -1,0 +1,16 @@
+{
+  "total_customers": 7032,
+  "churned": 1869,
+  "retained": 5163,
+  "churn_rate": 26.6,
+  "avg_monthly": 64.8,
+  "avg_tenure": 32.4,
+  "rf_accuracy": 78.4,
+  "rf_auc": 0.816,
+  "lr_auc": 0.834,
+  "mtm_churn": 42.7,
+  "fiber_churn": 41.9,
+  "echeck_churn": 45.3,
+  "new_cust_churn": 53.3,
+  "loyal_churn": 9.5
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customer Churn Analysis Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+  header { background: #1B3A6B; color: #fff; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header p  { font-size: 12px; opacity: 0.7; margin-top: 3px; }
+  .badge { background: #2E86C1; color: #fff; font-size: 11px; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .kpi { background: #fff; border-radius: 12px; padding: 18px 20px; border-left: 4px solid #1B3A6B; }
+  .kpi.red   { border-color: #C0392B; }
+  .kpi.green { border-color: #1E8449; }
+  .kpi.amber { border-color: #D4AC0D; }
+  .kpi.blue  { border-color: #2E86C1; }
+  .kpi label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .kpi .val  { font-size: 26px; font-weight: 700; color: #1a1a2e; }
+  .kpi .sub  { font-size: 11px; color: #aaa; margin-top: 4px; }
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .chart-card { background: #fff; border-radius: 12px; padding: 20px; }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-card h3 { font-size: 13px; font-weight: 600; color: #1B3A6B; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+  .chart-wrap { position: relative; }
+  .insights { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .insight-card { background: #fff; border-radius: 12px; padding: 20px; }
+  .insight-card h3 { font-size: 13px; font-weight: 600; color: #1B3A6B; margin-bottom: 14px; }
+  .finding { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f5f5f5; }
+  .finding:last-child { border: none; margin: 0; padding: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .dot.red   { background: #C0392B; }
+  .dot.amber { background: #D4AC0D; }
+  .dot.blue  { background: #2E86C1; }
+  .dot.green { background: #1E8449; }
+  .finding p { font-size: 13px; color: #444; line-height: 1.5; }
+  .finding strong { color: #1a1a2e; }
+  .rec { background: #EBF5FB; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; font-size: 13px; color: #1B3A6B; }
+  .rec strong { display: block; margin-bottom: 3px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; color: #2E86C1; }
+  .model-row { display: flex; gap: 18px; margin-bottom: 24px; }
+  .model-card { background: #fff; border-radius: 12px; padding: 20px; flex: 1; }
+  .model-card h3 { font-size: 13px; font-weight: 600; color: #1B3A6B; margin-bottom: 14px; }
+  .metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+  .metric-row:last-child { border: none; }
+  .metric-row span:last-child { font-weight: 700; color: #1B3A6B; }
+  footer { text-align: center; font-size: 11px; color: #aaa; padding: 20px; border-top: 1px solid #e0e0e0; }
+  @media (max-width: 700px) {
+    .charts, .insights { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: span 1; }
+    .model-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Customer Churn Analysis Dashboard</h1>
+    <p>IBM Telco Dataset (Real) &nbsp;|&nbsp; 7,032 customers &nbsp;|&nbsp; Python · SQL · Machine Learning</p>
+  </div>
+  <span class="badge">Portfolio Project — Shaik Roshan Basha</span>
+</header>
+
+<div class="container">
+
+  <div class="kpis">
+    <div class="kpi blue">
+      <label>Total Customers</label>
+      <div class="val">7,032</div>
+      <div class="sub">After data cleaning</div>
+    </div>
+    <div class="kpi red">
+      <label>Churned</label>
+      <div class="val">1,869</div>
+      <div class="sub">26.6% churn rate</div>
+    </div>
+    <div class="kpi green">
+      <label>Retained</label>
+      <div class="val">5,163</div>
+      <div class="sub">73.4% retention rate</div>
+    </div>
+    <div class="kpi amber">
+      <label>Avg Monthly Charge</label>
+      <div class="val">$64.80</div>
+      <div class="sub">Per customer</div>
+    </div>
+    <div class="kpi blue">
+      <label>Avg Tenure</label>
+      <div class="val">32.4 mo</div>
+      <div class="sub">Across all customers</div>
+    </div>
+    <div class="kpi green">
+      <label>Best Model AUC</label>
+      <div class="val">0.834</div>
+      <div class="sub">Logistic Regression</div>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Churn Rate by Contract Type</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="contractChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Churn Rate by Internet Service</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="internetChart"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <h3>Churn Rate by Tenure Band — New customers churn at 53.3%, loyal customers at only 9.5%</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="tenureChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Churn by Payment Method</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="paymentChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Overall Churn Distribution</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="donutChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insights">
+    <div class="insight-card">
+      <h3>Key Findings — Real IBM Telco Data</h3>
+      <div class="finding">
+        <div class="dot red"></div>
+        <p><strong>Month-to-month customers churn at 42.7%</strong> — 16.1 points above the 26.6% average. Contract type is the single strongest predictor of churn.</p>
+      </div>
+      <div class="finding">
+        <div class="dot red"></div>
+        <p><strong>Electronic check payers churn at 45.3%</strong> — the highest of all payment methods, suggesting payment friction or lower commitment levels.</p>
+      </div>
+      <div class="finding">
+        <div class="dot amber"></div>
+        <p><strong>Fiber optic users churn at 41.9%</strong> despite paying the highest charges — a clear signal of service quality or pricing dissatisfaction.</p>
+      </div>
+      <div class="finding">
+        <div class="dot blue"></div>
+        <p><strong>New customers (0–6 months) churn at 53.3%</strong> — more than half leave within their first 6 months, identifying a critical onboarding failure.</p>
+      </div>
+      <div class="finding">
+        <div class="dot green"></div>
+        <p><strong>Loyal customers (49+ months) churn at just 9.5%</strong> — reaching the 4-year mark is a strong indicator of long-term retention.</p>
+      </div>
+    </div>
+    <div class="insight-card">
+      <h3>Business Recommendations</h3>
+      <div class="rec">
+        <strong>R1 — Contract Conversion Campaign</strong>
+        Offer 15–20% discount to Month-to-month customers upgrading to annual contracts. If 30% convert, estimated churn reduction of 18–22%.
+      </div>
+      <div class="rec">
+        <strong>R2 — Fiber Optic Quality Review</strong>
+        Deploy NPS survey exclusively to Fiber optic users. Fast-track top complaints with a 60-day SLA improvement target to address 41.9% churn.
+      </div>
+      <div class="rec">
+        <strong>R3 — Auto-Pay Incentive</strong>
+        Offer $5/month discount for switching from Electronic check to bank transfer or credit card auto-pay — targets the 45.3% churn risk segment.
+      </div>
+      <div class="rec">
+        <strong>R4 — 90-Day Onboarding Program</strong>
+        Proactive check-ins at day 7, 30, and 90 for new customers. Targeting the 53.3% early churn rate with structured onboarding support.
+      </div>
+    </div>
+  </div>
+
+  <div class="model-row">
+    <div class="model-card">
+      <h3>Model Performance Comparison</h3>
+      <div class="metric-row"><span>Dataset</span><span>IBM Telco (Real)</span></div>
+      <div class="metric-row"><span>Records used</span><span>7,032 (11 dropped — blank TotalCharges)</span></div>
+      <div class="metric-row"><span>Features</span><span>19</span></div>
+      <div class="metric-row"><span>Train / Test split</span><span>80% / 20%</span></div>
+      <div class="metric-row"><span>Logistic Regression AUC</span><span>0.834 ✓ Best</span></div>
+      <div class="metric-row"><span>Logistic Regression Accuracy</span><span>72.6%</span></div>
+      <div class="metric-row"><span>Random Forest AUC</span><span>0.816</span></div>
+      <div class="metric-row"><span>Random Forest Accuracy</span><span>78.4%</span></div>
+    </div>
+    <div class="model-card">
+      <h3>Top Feature Importances — Random Forest</h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="featureChart"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Built by Shaik Roshan Basha &nbsp;|&nbsp; Real IBM Telco Dataset &nbsp;|&nbsp; Python · pandas · scikit-learn · MySQL · Chart.js
+</footer>
+
+<script>
+const BLUE = "#1B3A6B", ACCENT = "#2E86C1", RED = "#C0392B", GREEN = "#1E8449", GRAY = "#BDC3C7";
+const AVG = 26.6;
+const base = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+
+new Chart(document.getElementById("contractChart"), {
+  type: "bar",
+  data: { labels: ["Month-to-month","One year","Two year"],
+    datasets: [{ data: [42.7, 11.3, 2.8], backgroundColor: [RED, ACCENT, GREEN], borderRadius: 6, borderSkipped: false }] },
+  options: { ...base, scales: { x: { grid: { display: false } },
+    y: { suggestedMax: 55, ticks: { callback: v => v + "%" } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + "% churn rate" } } } }
+});
+
+new Chart(document.getElementById("internetChart"), {
+  type: "bar",
+  data: { labels: ["Fiber optic","DSL","No Internet"],
+    datasets: [{ data: [41.9, 19.0, 7.4], backgroundColor: [RED, ACCENT, GREEN], borderRadius: 6, borderSkipped: false }] },
+  options: { ...base, scales: { x: { grid: { display: false } },
+    y: { suggestedMax: 55, ticks: { callback: v => v + "%" } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + "% churn rate" } } } }
+});
+
+new Chart(document.getElementById("tenureChart"), {
+  type: "line",
+  data: { labels: ["0–6 months","7–12 months","13–24 months","25–48 months","49–72 months"],
+    datasets: [
+      { data: [53.3, 35.9, 28.7, 20.4, 9.5], borderColor: BLUE, backgroundColor: "rgba(27,58,107,0.08)",
+        fill: true, tension: 0.4, pointBackgroundColor: BLUE, pointRadius: 6, borderWidth: 2.5 },
+      { data: [AVG, AVG, AVG, AVG, AVG], borderColor: GRAY, borderDash: [5,4],
+        borderWidth: 1.5, pointRadius: 0 }
+    ] },
+  options: { ...base, scales: { x: { grid: { display: false } },
+    y: { suggestedMin: 0, suggestedMax: 65, ticks: { callback: v => v + "%" } } },
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: c => c.datasetIndex === 0 ? c.parsed.y + "% churn rate" : "Overall avg " + AVG + "%" } } } }
+});
+
+new Chart(document.getElementById("paymentChart"), {
+  type: "bar",
+  data: { labels: ["Electronic check","Mailed check","Bank transfer","Credit card"],
+    datasets: [{ data: [45.3, 19.2, 16.7, 15.3], backgroundColor: [RED, ACCENT, ACCENT, ACCENT],
+      borderRadius: 6, borderSkipped: false }] },
+  options: { ...base, indexAxis: "y", scales: { x: { suggestedMax: 55, ticks: { callback: v => v + "%" } },
+    y: { grid: { display: false } } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + "% churn rate" } } } }
+});
+
+new Chart(document.getElementById("donutChart"), {
+  type: "doughnut",
+  data: { labels: ["Retained (73.4%)","Churned (26.6%)"],
+    datasets: [{ data: [5163, 1869], backgroundColor: [GREEN, RED],
+      borderWidth: 3, borderColor: "#fff", hoverOffset: 8 }] },
+  options: { ...base, cutout: "65%",
+    plugins: { legend: { display: true, position: "bottom", labels: { font: { size: 12 }, padding: 16 } },
+      tooltip: { callbacks: { label: c => c.label + ": " + c.parsed.toLocaleString() + " customers" } } } }
+});
+
+new Chart(document.getElementById("featureChart"), {
+  type: "bar",
+  data: { labels: ["Monthly Charges","Tenure","Total Charges","Contract","Internet Service",
+    "Payment Method","Online Security","Tech Support","Streaming TV","Senior Citizen"],
+    datasets: [{ data: [0.19, 0.17, 0.15, 0.12, 0.10, 0.08, 0.06, 0.05, 0.04, 0.04],
+      backgroundColor: BLUE, borderRadius: 4, borderSkipped: false }] },
+  options: { ...base, indexAxis: "y", scales: {
+    x: { grid: { display: false }, ticks: { callback: v => (v*100).toFixed(0) + "%" } },
+    y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+});
+</script>
+</body>
+</html>
